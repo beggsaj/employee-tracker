@@ -27,8 +27,8 @@ const userInput = () => {
             'add employee',
             'add department',
             'add role',
-            'complete updates',
-            'update an employee role'
+            'update an employee role',
+            'complete updates'
         ]
     }]).then(function (val) {
         switch (val.choices) {
@@ -104,18 +104,25 @@ function addEmployee() {
                 message: 'manager id'
             },
             {
-                name: 'role',
-                type: 'input',
-                message: 'job title'
+                name: 'role', 
+                type: 'list',
+                choices: function() {
+                var roleArray = [];
+                for (let i = 0; i < res.length; i++) {
+                    roleArray.push(res[i].title);
+                }
+                return roleArray;
+                },
+                message: "employee's role? "
             }
         ]).then(function (answer) {
-            let role_id
+            let role_id;
             for (let i = 0; i < res.length; i++) {
                 if (res[i].title == answer.role) {
-                    role_id = res[i].id
+                    role_id = res[i].id;
                     console.log(role_id)
-                }
-            }
+                }                  
+            }  
             connection.query(
                 'INSERT INTO employee SET ?', {
                     first_name: answer.first_name,
@@ -211,7 +218,7 @@ function roleOptions(){
 }
 
 function updateRole() {
-    connection.query("SELECT employee.last_name, role.title FROM employee JOIN role ON employee.role_id;", function(err, res){
+    connection.query("SELECT employee.last_name, role_info.title FROM employee JOIN role_info ON employee.role_id;", function(err, res){
         if (err) throw err
         console.log(res)
         inquirer.prompt([
