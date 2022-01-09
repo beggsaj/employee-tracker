@@ -246,17 +246,11 @@ function updateRole() {
                 choices: roleOptions()
             },
         ])
-        .then(function(answer){
-            var roleId = roleOptions().indexOf(answer.role)+1
-            connection.query("UPDATE employee SET WHERE ?",
-            {
-                last_name: answer.lastName
-            },
-            {
-                role_id: roleId
-            },
-            function(err){
-                if (err) throw err
+        .then((answer) => {
+            connection.query(`UPDATE employee 
+            SET role_id = (SELECT id FROM role_info WHERE title = ? ) 
+            WHERE id = (SELECT id FROM(SELECT id FROM employee WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`, [answer.newRole, answer.empl], (err, results) => {
+                    if (err) throw err;
                 console.table(answer)
                 userInput()
             })
