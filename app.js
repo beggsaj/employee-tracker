@@ -91,17 +91,17 @@ function addEmployee() {
         inquirer.prompt([{
                 name: 'first_name',
                 type: 'input',
-                message: 'first name'
+                message: 'first name:'
             },
             {
                 name: 'last_name',
                 type: 'input',
-                message: 'last name'
+                message: 'last name:'
             },
             {
                 name: 'manager_id',
                 type: 'input',
-                message: 'manager id'
+                message: 'manager id:'
             },
             {
                 name: 'role', 
@@ -113,7 +113,7 @@ function addEmployee() {
                 }
                 return roleArray;
                 },
-                message: "employee's role?"
+                message: "new employee's role?"
             }
         ]).then(function (answer) {
             let role_id;
@@ -132,7 +132,7 @@ function addEmployee() {
                 },
                 function (err) {
                     if (err) throw err
-                    console.log('success!')
+                    console.table('Employees:', res);
                     userInput()
                 }
             )
@@ -167,12 +167,12 @@ function addRoles() {
         inquirer.prompt([{
                     name: 'addRole',
                     type: 'input',
-                    message: 'what role?'
+                    message: 'what is the new role?'
                 },
                 {
                     name: 'salary',
                     type: 'input',
-                    message: 'salary?'
+                    message: 'what is the salary?'
                 },
                 {
                     name: 'department',
@@ -212,48 +212,44 @@ function addRoles() {
     })
 }
 
-var roleArr = []
+var roleArry = []
 function roleOptions(){
     connection.query("SELECT * FROM role_info", function(err,res){
         if (err) throw err
         for (var i = 0; i < res.length; i++){
-            roleArr.push(res[i].title)
+            roleArry.push(res[i].title)
         }
     })
-    return roleArr
+    return roleArry,
+    console.log(roleArry)
 }
 
 function updateRole() {
-    connection.query("SELECT employee.last_name, role_info.title FROM employee JOIN role_info ON employee.role_id;", function(err, res){
-        if (err) throw err
+    connection.query("SELECT employee.last_name, role_info.title FROM employee JOIN role_info ON employee.role_id = role_info.id;", function(err, res) {
+        console.log(res)
+         if (err) throw err
         inquirer.prompt([
             {
-                name: 'lastName',
-                type: 'rawlist',
-                choices: function() {
-                    var lastName = []
-                    for (var i=0; i < res.length; i++) {
-                        lastName.push(res[i].last_name)
-                    }
-                    return lastName
-                },
-                message: 'what is the last name?',
+                type: "input",
+        message: "Enter the employee's ID you want to be updated",
+        name: "updateEmploy"
             },
             {
-                name: 'role',
-                type: 'rawlist',
-                message: 'what is the new role?',
-                choices: roleOptions()
+                type: "input",
+        message: "Enter the new role ID for that employee",
+        name: "newRole"
             },
         ])
-        .then((answer) => {
-            connection.query(`UPDATE employee 
-            SET role_id = (SELECT id FROM role_info WHERE title = ? ) 
-            WHERE id = (SELECT id FROM(SELECT id FROM employee WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`, [answer.newRole, answer.empl], (err, results) => {
-                    if (err) throw err;
-                console.table(answer)
-                userInput()
+        .then(function (res) {
+            const updateEmploy = res.updateEmploy;
+            const newRole = res.newRole;
+            const queryUpdate = `UPDATE employee SET role_id = "${newRole}" WHERE id = "${updateEmploy}"`;
+            connection.query(queryUpdate, function (err, res) {
+              if (err) {
+                throw err;
+              }
+              console.table(res);
+              userInput();
             })
-        })
-    })
-}
+          });
+        })}
