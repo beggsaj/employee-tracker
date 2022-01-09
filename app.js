@@ -113,7 +113,7 @@ function addEmployee() {
                 }
                 return roleArray;
                 },
-                message: "employee's role? "
+                message: "employee's role?"
             }
         ]).then(function (answer) {
             let role_id;
@@ -176,13 +176,19 @@ function addRoles() {
                 },
                 {
                     name: 'department',
-                    type: 'input',
-                    message: 'what department?'
+                    type: 'list',
+                    choices: function() {
+                        var deptArry = []
+                        for (let i = 0; i < res.length; i++) {
+                            deptArry.push(res[i].department_name)
+                        }
+                        return deptArry
+                    },
                 }
             ]).then(function (answer) {
                     let department_id
                     for (let i = 0; i < res.length; i++) {
-                        if (res[i].department_id == answer.department) {
+                        if (res[i].department_id == answer.department_name) {
                             department_id = res[i].id
                             console.log(department_id)
                         }
@@ -208,7 +214,7 @@ function addRoles() {
 
 var roleArr = []
 function roleOptions(){
-    connection.query("SELECT * FROM role", function(err,res){
+    connection.query("SELECT * FROM role_info", function(err,res){
         if (err) throw err
         for (var i = 0; i < res.length; i++){
             roleArr.push(res[i].title)
@@ -220,7 +226,6 @@ function roleOptions(){
 function updateRole() {
     connection.query("SELECT employee.last_name, role_info.title FROM employee JOIN role_info ON employee.role_id;", function(err, res){
         if (err) throw err
-        console.log(res)
         inquirer.prompt([
             {
                 name: 'lastName',
@@ -241,18 +246,18 @@ function updateRole() {
                 choices: roleOptions()
             },
         ])
-        .then(function(val){
-            var roleId = roleOptions().indexOf(val.role)+1
+        .then(function(answer){
+            var roleId = roleOptions().indexOf(answer.role)+1
             connection.query("UPDATE employee SET WHERE ?",
             {
-                last_name: val.lastName
+                last_name: answer.lastName
             },
             {
                 role_id: roleId
             },
             function(err){
                 if (err) throw err
-                console.table(val)
+                console.table(answer)
                 userInput()
             })
         })
