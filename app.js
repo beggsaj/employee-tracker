@@ -1,12 +1,13 @@
 //dependiences 
 const mysql = require('mysql2')
 const inquirer = require('inquirer')
+const consoleTable = require('console.table')
 
 //setting up the connection
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'removedforgithub!',
+    password: 'Leothedog23!',
     database: 'employee_db'
 })
 
@@ -54,6 +55,9 @@ const userInput = () => {
                 break
             case 'update an employee role':
                 updateRole()
+                break
+            case 'complete updates':
+                finishQuestions()
                 break
         }
     })
@@ -137,7 +141,7 @@ function addEmployee() {
                 },
                 function (err) {
                     if (err) throw err
-                    console.table('Employees:', res);
+                    console.table(res);
                     userInput()
                 }
             )
@@ -160,7 +164,7 @@ function addDepartment() {
         connection.query(query, function (err, res) {
             if (err) throw err
             console.log('success!')
-            console.table('All Departments', res)
+            console.table(res)
             userInput()
         })
     })
@@ -209,7 +213,7 @@ function addRoles() {
                 function (err, res) {
                     if (err) throw err
                     console.log('success!')
-                    console.table('All Roles:', res)
+                    console.table(res)
                     userInput()
                 }
             )
@@ -247,4 +251,8 @@ function updateRole() {
                 })
             });
     })
+}
+
+function finishQuestions(){
+    connection.end()
 }
